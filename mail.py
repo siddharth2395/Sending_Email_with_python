@@ -8,11 +8,23 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 import getpass
+import sys
 
-fromaddr = "your email address"
-recipient = ['example1@example.com', 'example2@example.com']
+fromaddr = str(raw_input('Email ID: '))
+recipient = sys.argv[1].split(',') #give recipients as commandline arguments
+
+print "total recipients:",len(recipient)
 
 password = getpass.getpass()
+
+# creates SMTP session
+s = smtplib.SMTP('smtp.gmail.com', 587)
+
+# start TLS for security
+s.starttls()
+
+# Authentication
+s.login(fromaddr, password)
 
 for toaddr in recipient:
 	print "sending mail to :",toaddr
@@ -26,7 +38,7 @@ for toaddr in recipient:
 	msg['To'] = toaddr
 
 	# storing the subject
-	msg['Subject'] = "Mail From script Test 3"
+	msg['Subject'] = "Mail From script Test 4"
 
 	# string to store the body of the mail
 	body = "le me know what u recived, i hope its individual mail"
@@ -35,8 +47,8 @@ for toaddr in recipient:
 	msg.attach(MIMEText(body, 'plain'))
 
 	# open the file to be sent
-	filename = "" #specify the name of file with extension
-	attachment = open("file_path", "rb")
+	filename = "resume.pdf" #specify the name of file with extension
+	attachment = open(filename, "rb")
 
 	# instance of MIMEBase and named as p
 	p = MIMEBase('application', 'octet-stream')
@@ -52,20 +64,12 @@ for toaddr in recipient:
 	# attach the instance 'p' to instance 'msg'
 	msg.attach(p)
 
-	# creates SMTP session
-	s = smtplib.SMTP('smtp.gmail.com', 587)
-
-	# start TLS for security
-	s.starttls()
-
-	# Authentication
-	s.login(fromaddr, password)
-
 	# Converts the Multipart msg into a string
 	text = msg.as_string()
 
 	# sending the mail
 	s.sendmail(fromaddr, toaddr, text)
 
-	# terminating the session
-	s.quit()
+
+# terminating the session
+s.quit()
